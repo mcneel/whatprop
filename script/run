@@ -1,0 +1,42 @@
+#!/bin/bash
+
+# config it
+
+RHINO_OLD="5.13.60523.20140"
+RHINO_NEW="6.0.16118.23591"
+TMP_DIR=/tmp/whatprop
+RHINO_OLD_DIR=$TMP_DIR/$RHINO_OLD
+RHINO_NEW_DIR=$TMP_DIR/$RHINO_NEW
+RHINO_OLD_FILE=$TMP_DIR/$RHINO_OLD/out.txt
+RHINO_NEW_FILE=$TMP_DIR/$RHINO_NEW/out.txt
+
+# init it
+
+mkdir -p $RHINO_OLD_DIR
+mkdir -p $RHINO_NEW_DIR
+
+# parse it
+
+mono src/WhatProp/bin/Debug/WhatProp.exe RhinoCommon.${RHINO_OLD}.dll > $RHINO_OLD_FILE
+mono src/WhatProp/bin/Debug/WhatProp.exe RhinoCommon.${RHINO_NEW}.dll > $RHINO_NEW_FILE
+
+# diff it
+
+#git diff whatprop/RhinoCommon.${RHINO_OLD}.txt whatprop/RhinoCommon.${RHINO_NEW}.txt
+#git diff --color-always $RHINO_OLD_FILE $RHINO_NEW_FILE
+
+git  diff --stat $RHINO_OLD_FILE $RHINO_NEW_FILE
+
+# churn it
+
+STAT=`git diff --numstat $RHINO_OLD_FILE $RHINO_NEW_FILE`
+REMOVED=`echo $STAT | cut -d " " -f 2`
+ADDED=`echo $STAT | cut -d " " -f 1`
+TOTAL=`cat $RHINO_NEW_FILE | wc -l`
+CHURN=`echo "scale=2; ($REMOVED+$ADDED)/$TOTAL*100" | bc`
+echo -e "\n ${CHURN}% churn"
+
+# pretty print it
+
+git diff --color=always $RHINO_OLD_FILE $RHINO_NEW_FILE #| diff-highlight | aha -s | sed -E 's/color\: gray\;\}/color\: white\;\}/g' > diff.html
+# open diff.html
