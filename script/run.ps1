@@ -41,6 +41,8 @@ $a,$b,$c = $stat.split()
 $c = Get-Content $RHINO_NEW_FILE | Measure-Object -Line
 $c = $c.Lines
 
-([int]$a+[int]$b)/[int]$c*100 | % { '{0:0.##}% churn' -f $_ }
+$churn = ([int]$a+[int]$b)/[int]$c*100 | % { '{0:0.##}% churn' -f $_ }
+write-host $churn
+write-host "##teamcity[buildStatus text='{build.status.text}, $churn']"
 
 cd $cwd
