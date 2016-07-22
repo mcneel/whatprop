@@ -1,4 +1,8 @@
-#!/bin/bash
+param (
+    [parameter(Mandatory=$true)][string]$path
+)
+
+
 
 # config it
 
@@ -18,7 +22,7 @@ $RHINO_NEW_FILE = $OUT_DIR + '\wip.txt'
 # $RHINO_NEW_FILE
 # $RHINO_OLD_DLL = 'C:\Users\Will\Desktop\' + $RHINO_NEW + '\RhinoCommon.dll'
 
-cmd /c src\WhatProp\bin\Debug\WhatProp.exe RhinoCommon.dll `> $RHINO_NEW_FILE
+cmd /c src\WhatProp\bin\Debug\WhatProp.exe $path `> $RHINO_NEW_FILE
 
 $cwd = $pwd.Path.split('\')[-1]
 $RHINO_OLD_FILE = $cwd + '\' + $RHINO_OLD_FILE
