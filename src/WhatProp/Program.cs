@@ -97,7 +97,7 @@ namespace WhatProp
             foreach (TypeDefinition type in types.OrderBy(x => x.Namespace).ThenBy(y => y.FullName))
             {
                 // skip
-                if (type.IsNotPublic) { continue; }
+                if (!type.IsPublic) { continue; }
                 if (type.FullName.StartsWith("<") || type.Name.StartsWith("<")) { continue; }
 
                 // prefix
@@ -133,7 +133,6 @@ namespace WhatProp
                 foreach (MethodDefinition method in type.Methods.OrderBy(x => x.Name))
                 {
                     if (!method.IsPublic || method.IsGetter || method.IsSetter) { continue; }
-                    //if (!method.IsPublic) { continue; }
 
                     Console.Write("  ");
 
