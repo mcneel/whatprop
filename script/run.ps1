@@ -32,7 +32,7 @@ $AHA_FILE = $OUT_DIR + '\diff.html'
 
 cd ..
 $stat = & git diff --numstat $RHINO_OLD_FILE $RHINO_NEW_FILE
-cmd /c git diff --color=always $RHINO_OLD_FILE $RHINO_NEW_FILE `| $cwd\aha.exe `> $cwd\$AHA_FILE
+cmd /c git diff --color=always $RHINO_OLD_FILE $RHINO_NEW_FILE `| $cwd\aha.exe -s `> $cwd\$AHA_FILE
 # cd whatprop
 
 $a,$b,$c = $stat.split()
