@@ -132,7 +132,16 @@ namespace WhatProp
 
                 foreach (MethodDefinition method in type.Methods.OrderBy(x => x.Name))
                 {
-                    if (!method.IsPublic || method.IsGetter || method.IsSetter) { continue; }
+                    if (!method.IsPublic) continue;
+
+                    // treat vb parameterized properties as methods
+                    if (method.IsGetter && method.Parameters.Count == 0) continue;
+                    if (method.IsSetter && method.Parameters.Count == 1) continue;
+
+                    // but allow Item and Value properties, since they work in c#
+                    // TODO: check first param is int
+                    var allowed_properties = new string[] { "get_Item", "set_Item", "get_Value", "set_Value" };
+                    if (allowed_properties.Contains(method.Name)) continue;
 
                     Console.Write("  ");
 
@@ -154,12 +163,33 @@ namespace WhatProp
 
                 // properties
 
+                // rename Value property to Item so things are consistent between vb.net and c#
+                // do this before sorting properties by name...
+                for (int i = 0; i < type.Properties.Count; i++)
+                {
+                    if (type.Properties[i].Name == "Value")
+                        type.Properties[i].Name = "Item";
+                }
+
                 foreach (PropertyDefinition property in type.Properties.OrderBy(x => x.Name))
                 {
                     //break;
                     bool has_public_getter = property.GetMethod != null && property.GetMethod.IsPublic;
                     bool has_public_setter = property.SetMethod != null && property.SetMethod.IsPublic;
                     if (!(has_public_getter || has_public_setter)) continue;
+
+                    // treat vb parameterized properties as methods (see above)
+                    if (property.HasParameters)
+                    {
+                        // but allow item "Item" property, since it's special
+                        if (property.Name != "Item")
+                        {
+                            continue;
+                        }
+                    }
+
+
+
 
                     Console.Write("  ");
 
