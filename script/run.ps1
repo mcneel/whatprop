@@ -1,48 +1,35 @@
-param (
-    [parameter(Mandatory=$true)][string]$path
-)
+# ..\rhino\build\bin\nuget.exe install rhinocommon -verbosity normal
+# ..\rhino\build\bin\nuget.exe install rhinocommon -prerelease -verbosity normal
 
+src\WhatProp\bin\Release\WhatProp.exe (get-item RhinoCommon.6.*\lib\net45\RhinoCommon.dll).FullName > rhinocommon_6.txt
+src\WhatProp\bin\Release\WhatProp.exe (get-item RhinoCommon.7.*\lib\net45\RhinoCommon.dll).FullName > rhinocommon_7.txt
 
+# C:\Progra~1\Git\bin\bash -c "dos2unix rhinocommon_6.txt"
+# C:\Progra~1\Git\bin\bash -c "dos2unix rhinocommon_7.txt"
 
-# config it
+C:\Progra~1\Git\bin\bash -c "unix2dos rhinocommon_6.txt"
+C:\Progra~1\Git\bin\bash -c "unix2dos rhinocommon_7.txt"
 
-# $RHINO_OLD = "5.13.60523.20140"
-# $RHINO_NEW = "6.0.16118.23591"
-# $OUT_DIR = $env:TEMP + '\whatprop'
-$OUT_DIR = 'out'
-
-md -Force $OUT_DIR | Out-Null
-
-$OUT_DIR
-# $RHINO_OLD_DIR = $TMP_DIR + '\' + $RHINO_OLD
-# $RHINO_NEW_DIR = $TMP_DIR + '\' + $RHINO_NEW
-# $RHINO_OLD_FILE = $OUT_DIR + '\5.txt'
-$RHINO_OLD_FILE = 'out\5.txt'
-$RHINO_NEW_FILE = $OUT_DIR + '\wip.txt'
-# $RHINO_NEW_FILE
-# $RHINO_OLD_DLL = 'C:\Users\Will\Desktop\' + $RHINO_NEW + '\RhinoCommon.dll'
-
-cmd /c src\WhatProp\bin\Debug\WhatProp.exe $path `> $RHINO_NEW_FILE
+# C:\Progra~1\Git\bin\bash -c "diff -U0 rhinocommon_6.txt rhinocommon_7.txt > rhinocommon_67.diff"
 
 $cwd = $pwd.Path.split('\')[-1]
-$RHINO_OLD_FILE = $cwd + '\' + $RHINO_OLD_FILE
-$RHINO_NEW_FILE = $cwd + '\' + $RHINO_NEW_FILE
-
-$AHA_FILE = $OUT_DIR + '\diff.html'
-
 cd ..
-$stat = & git diff --numstat $RHINO_OLD_FILE $RHINO_NEW_FILE
-cmd /c git diff --color=always $RHINO_OLD_FILE $RHINO_NEW_FILE `| $cwd\aha.exe -s `> $cwd\$AHA_FILE
-# cd whatprop
+$stat = & git diff --numstat $cwd\rhinocommon_6.txt $cwd\rhinocommon_7.txt
+$stat
+& git diff $cwd\rhinocommon_6.txt $cwd\rhinocommon_7.txt > $cwd\rhinocommon_67.diff
+cd $cwd
 
 $a,$b,$c = $stat.split()
-# $a
-# $b
-$c = Get-Content $RHINO_NEW_FILE | Measure-Object -Line
-$c = $c.Lines
 
-$churn = ([int]$a+[int]$b)/[int]$c*100 | % { '{0:0.##}% churn' -f $_ }
-write-host $churn
-write-host "##teamcity[buildStatus text='{build.status.text}, $churn']"
+$c = (Get-Content rhinocommon_7.txt | Measure-Object -Line).Lines
 
-cd $cwd
+$churn = ([int]$a+[int]$b)/[int]$c*100 
+
+$msg = '{0:0.##}% churn' -f $churn
+
+if ($b -gt 0) {
+    $msg += ' ({0} breaking changes)' -f $b
+}
+
+write-host $msg
+write-host "##teamcity[buildStatus text='{build.status.text}, $msg']"

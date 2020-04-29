@@ -145,7 +145,7 @@ namespace WhatProp
 
                     Console.Write("  ");
 
-                    PrintObsolete(method);
+                    //PrintObsolete(method);
 
                     prefix = method.IsStatic ? "static " : "";
                     prefix = method.IsVirtual ? "virtual " : prefix;
@@ -193,30 +193,23 @@ namespace WhatProp
 
                     Console.Write("  ");
 
-                    PrintObsolete(property);
+                    //PrintObsolete(property);
 
-                    if (property.GetMethod != null && property.GetMethod.IsStatic) Console.Write("static ");
-                    if (property.GetMethod != null && property.GetMethod.IsVirtual) Console.Write("virtual ");
-
-                    //var prop_string_builder = new StringBuilder("Property: ");
                     var prop_string_builder = new StringBuilder();
-                    //prop_string_builder.Append(property.PropertyType.Name + " ");
-                    //prop_string_builder.Append(property.Name + " { ");
-                    //prop_string_builder.Append(property.FullName.TrimEnd('(', ')') + " { ");
-                    prop_string_builder.Append(property.FullName + " { ");
+
+                    if (property.GetMethod != null && property.GetMethod.IsStatic)
+                        prop_string_builder.Append("static ");
+                    if (property.GetMethod != null && property.GetMethod.IsVirtual)
+                        prop_string_builder.Append("virtual ");
+
+                    prop_string_builder.Append(property.FullName);
+
+                    // print getter and setter on separate lines
                     if (has_public_getter)
-                        prop_string_builder.Append("get; ");
+                        Console.WriteLine(prop_string_builder.ToString() + " { get; }");
                     if (has_public_setter)
-                        prop_string_builder.Append("set; ");
-                    prop_string_builder.Append("}");
-                    Console.WriteLine(prop_string_builder.ToString());
-                    //Console.WriteLine("  - {0}", property.FullName);
-                    //Console.WriteLine(property.GetMethod != null);
-                    //if (property.GetMethod != null)
-                    //    Console.WriteLine(property.GetMethod.IsPublic);
-                    //Console.WriteLine(property.SetMethod != null);
-                    //if (property.SetMethod != null)
-                    //    Console.WriteLine(property.SetMethod.IsPublic);
+                        Console.WriteLine(prop_string_builder.ToString() + " { set; }");
+
                     memberCount++;
                 }
 
